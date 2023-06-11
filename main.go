@@ -1,16 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
 
+type apiConfig struct {
+	fileserverHits int
+}
+
 func main() {
+	appCfg := &apiConfig{}
 	const filepathRoot = "."
 	const port = "8080"
 	mux := http.NewServeMux()
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
+
+	mux.Handle("/app/", appCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
+
 	mux.HandleFunc("/healthz", handlerReadiness)
+
+	mux.HandleFunc("/metrics", appCfg.handlerHits)
 
 	corsMux := middlewareCors(mux)
 
@@ -27,4 +37,17 @@ func handlerReadiness(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(http.StatusText(http.StatusOK)))
+}
+
+func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.fileserverHits++
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (cfg *apiConfig) handlerHits(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("Hits: %d", cfg.fileserverHits)))
 }
