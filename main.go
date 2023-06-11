@@ -21,9 +21,13 @@ func main() {
 	r.Handle("/app/*", fsHandler)
 	r.Handle("/app", fsHandler)
 
-	r.Get("/healthz", handlerReadiness)
+	apiRouter := chi.NewRouter()
 
-	r.Get("/metrics", appCfg.handlerHits)
+	apiRouter.Get("/healthz", handlerReadiness)
+
+	apiRouter.Get("/metrics", appCfg.handlerHits)
+
+	r.Mount("/api", apiRouter)
 
 	cors := middlewareCors(r)
 
