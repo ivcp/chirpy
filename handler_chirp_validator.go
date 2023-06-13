@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
@@ -14,7 +15,7 @@ func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
 		Error string `json:"error"`
 	}
 	type resp struct {
-		Valid bool `json:"valid"`
+		Body string `json:"cleaned_body"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -28,12 +29,15 @@ func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
 
 	const maxChirpLength = 140
 	if len([]rune(params.Body)) > maxChirpLength {
+
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 
+	cleanedBody := cleanBody(params.Body)
+
 	respondWithJSON(w, http.StatusOK, resp{
-		Valid: true,
+		Body: cleanedBody,
 	})
 }
 
@@ -59,4 +63,18 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	}
 	w.WriteHeader(code)
 	w.Write(dat)
+}
+
+func cleanBody(body string) string {
+	bannedWords := map[string]struct{}{"kerfuffle": {}, "sharbert": {}, "fornax": {}}
+
+	bodySlice := strings.Split(body, " ")
+
+	for i, word := range bodySlice {
+		if _, ok := bannedWords[strings.ToLower(word)]; ok {
+			bodySlice[i] = "****"
+		}
+	}
+
+	return strings.Join(bodySlice, " ")
 }
