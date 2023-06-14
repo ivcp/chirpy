@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/ivcp/chirpy/internal/db"
 )
 
 type apiConfig struct {
@@ -25,7 +26,7 @@ func main() {
 	adminRouter := chi.NewRouter()
 
 	apiRouter.Get("/healthz", handlerReadiness)
-	apiRouter.Post("/validate_chirp", handlerChirpValidator)
+	apiRouter.Post("/chirps", handlerChirpValidator)
 
 	adminRouter.Get("/metrics", appCfg.handlerHits)
 
@@ -38,6 +39,8 @@ func main() {
 		Handler: cors,
 		Addr:    ":" + port,
 	}
+
+	db.NewDb("database.json")
 
 	log.Printf("Serving files from %s on port: %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())

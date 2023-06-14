@@ -15,6 +15,7 @@ func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
 		Error string `json:"error"`
 	}
 	type resp struct {
+		Id   int    `json:"id"`
 		Body string `json:"cleaned_body"`
 	}
 
@@ -36,7 +37,9 @@ func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
 
 	cleanedBody := cleanBody(params.Body)
 
-	respondWithJSON(w, http.StatusOK, resp{
+	// add to db
+
+	respondWithJSON(w, http.StatusCreated, resp{
 		Body: cleanedBody,
 	})
 }
