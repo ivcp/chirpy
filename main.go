@@ -8,14 +8,22 @@ import (
 	"github.com/ivcp/chirpy/internal/db"
 )
 
-type apiConfig struct {
+type appConfig struct {
 	fileserverHits int
+	database       *db.DB
 }
 
 func main() {
+	database, err := db.NewDb("database.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 	const filepathRoot = "."
 	const port = "8080"
-	appCfg := &apiConfig{}
+	appCfg := &appConfig{
+		database: database,
+	}
+
 	r := chi.NewRouter()
 
 	fsHandler := appCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
@@ -26,7 +34,7 @@ func main() {
 	adminRouter := chi.NewRouter()
 
 	apiRouter.Get("/healthz", handlerReadiness)
-	apiRouter.Post("/chirps", handlerChirpValidator)
+	apiRouter.Post("/chirps", appCfg.handlerAddChirp)
 
 	adminRouter.Get("/metrics", appCfg.handlerHits)
 
@@ -39,8 +47,6 @@ func main() {
 		Handler: cors,
 		Addr:    ":" + port,
 	}
-
-	db.NewDb("database.json")
 
 	log.Printf("Serving files from %s on port: %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())
