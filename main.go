@@ -14,12 +14,13 @@ type appConfig struct {
 }
 
 func main() {
+	const filepathRoot = "."
+	const port = "8080"
+
 	database, err := db.NewDb("database.json")
 	if err != nil {
 		log.Fatal(err)
 	}
-	const filepathRoot = "."
-	const port = "8080"
 	appCfg := &appConfig{
 		database: database,
 	}
@@ -31,16 +32,13 @@ func main() {
 	r.Handle("/app", fsHandler)
 
 	apiRouter := chi.NewRouter()
-	adminRouter := chi.NewRouter()
-
 	apiRouter.Get("/healthz", handlerReadiness)
-
 	apiRouter.Get("/chirps", appCfg.handlerGetChirps)
 	apiRouter.Post("/chirps", appCfg.handlerAddChirp)
-
-	adminRouter.Get("/metrics", appCfg.handlerHits)
-
 	r.Mount("/api", apiRouter)
+
+	adminRouter := chi.NewRouter()
+	adminRouter.Get("/metrics", appCfg.handlerHits)
 	r.Mount("/admin", adminRouter)
 
 	cors := middlewareCors(r)
