@@ -7,16 +7,12 @@ import (
 	"strings"
 )
 
-func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
+func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) {
 	type parameters struct {
 		Body string `json:"body"`
 	}
 	type errorT struct {
 		Error string `json:"error"`
-	}
-	type resp struct {
-		Id   int    `json:"id"`
-		Body string `json:"cleaned_body"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -39,9 +35,12 @@ func handlerChirpValidator(w http.ResponseWriter, req *http.Request) {
 
 	// add to db
 
-	respondWithJSON(w, http.StatusCreated, resp{
-		Body: cleanedBody,
-	})
+	newChirp, err := cfg.database.CreateChirp(cleanedBody)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed so save chirp to DB")
+	}
+
+	respondWithJSON(w, http.StatusCreated, newChirp)
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
