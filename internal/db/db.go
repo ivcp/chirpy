@@ -3,7 +3,6 @@ package db
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"sync"
@@ -26,6 +25,7 @@ type Chirp struct {
 func NewDb(path string) (*DB, error) {
 	db := &DB{
 		path: path,
+		mux:  &sync.RWMutex{},
 	}
 	_, err := os.ReadFile(path)
 
@@ -82,11 +82,13 @@ func (db *DB) GetChirps() ([]Chirp, error) {
 }
 
 func (db *DB) ensureDB() error {
-	_, err := os.Create(db.path)
+	emptyDb := DBStructure{
+		Chirps: make(map[int]Chirp),
+	}
+	err := db.writeDB(emptyDb)
 	if err != nil {
 		return err
 	}
-	fmt.Println("file created")
 	return nil
 }
 
@@ -110,10 +112,11 @@ func (db *DB) writeDB(dbStructure DBStructure) error {
 		return err
 	}
 
-	err = os.WriteFile("database.json", dbJson, 0o666)
+	db.mux.Lock()
+	err = os.WriteFile(db.path, dbJson, 0o666)
 	if err != nil {
 		return err
 	}
-
+	db.mux.Unlock()
 	return nil
 }
