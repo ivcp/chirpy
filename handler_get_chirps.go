@@ -26,6 +26,6 @@ func (cfg *appConfig) handlerGetChirps(w http.ResponseWriter, req *http.Request)
 		w.WriteHeader(500)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	w.Write(dat)
 }
