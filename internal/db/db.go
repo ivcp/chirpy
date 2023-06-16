@@ -16,11 +16,16 @@ type DB struct {
 
 type DBStructure struct {
 	Chirps map[int]Chirp `json:"chirps"`
+	Users  map[int]User  `json:"users"`
 }
 
 type Chirp struct {
 	Id   int    `json:"id"`
 	Body string `json:"body"`
+}
+type User struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
 }
 
 func NewDb(path string) (*DB, error) {
@@ -104,6 +109,7 @@ func (db *DB) GetChirp(id int) (Chirp, error) {
 func (db *DB) ensureDB() error {
 	emptyDb := DBStructure{
 		Chirps: make(map[int]Chirp),
+		Users:  make(map[int]User),
 	}
 	err := db.writeDB(emptyDb)
 	if err != nil {
@@ -139,4 +145,31 @@ func (db *DB) writeDB(dbStructure DBStructure) error {
 	}
 	db.mux.Unlock()
 	return nil
+}
+
+func (db *DB) AddUser(email string) (User, error) {
+	DBStruct, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	for _, val := range DBStruct.Users {
+		if val.Email == email {
+			return User{}, errors.New(fmt.Sprintf("%s already taken", email))
+		}
+	}
+
+	id := len(DBStruct.Users) + 1
+	newUser := User{
+		Id:    id,
+		Email: email,
+	}
+	DBStruct.Users[id] = newUser
+
+	err = db.writeDB(DBStruct)
+	if err != nil {
+		return User{}, err
+	}
+
+	return newUser, nil
 }
