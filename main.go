@@ -13,6 +13,7 @@ type appConfig struct {
 	database       *db.DB
 }
 
+// quick change
 func main() {
 	const filepathRoot = "."
 	const port = "8080"
