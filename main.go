@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ivcp/chirpy/internal/db"
@@ -14,6 +16,7 @@ type appConfig struct {
 }
 
 func main() {
+	debug()
 	const filepathRoot = "."
 	const port = "8080"
 
@@ -53,4 +56,13 @@ func main() {
 
 	log.Printf("Serving files from %s on port: %s", filepathRoot, port)
 	log.Fatal(server.ListenAndServe())
+}
+
+func debug() {
+	debug := flag.Bool("debug", false, "remove db")
+	flag.Parse()
+
+	if *debug {
+		os.Remove("database.json")
+	}
 }
