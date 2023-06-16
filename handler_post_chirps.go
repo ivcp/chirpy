@@ -10,14 +10,10 @@ func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) 
 	type parameters struct {
 		Body string `json:"body"`
 	}
-	type errorT struct {
-		Error string `json:"error"`
-	}
 
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
-	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldnt decode parameters")
 		return
