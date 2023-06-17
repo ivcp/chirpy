@@ -5,10 +5,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 	type parameters struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	type response struct {
+		Id    int    `json:"id"`
 		Email string `json:"email"`
 	}
 	decoder := json.NewDecoder(req.Body)
@@ -19,21 +26,46 @@ func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if params.Email == "" || params.Password == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing username or password")
+		return
+	}
+
 	if !isValidEmail(params.Email) {
 		respondWithError(w, http.StatusBadRequest, "Invalid email address")
 		return
 	}
 
+	if !isValidPassword((params.Password)) {
+		respondWithError(w, http.StatusBadRequest, "Password must be 6 or more characters long")
+		return
+	}
+
+	// hash password
+
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(params.Password), 10)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	// add user
-	newUser, err := cfg.database.AddUser(params.Email)
+	newUser, err := cfg.database.AddUser(params.Email, string(hashedPass))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to save user: %s", err))
 		return
 	}
-	respondWithJSON(w, http.StatusCreated, newUser)
+	respondWithJSON(w, http.StatusCreated, response{
+		Id:    newUser.Id,
+		Email: newUser.Email,
+	})
 }
 
 func isValidEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
+}
+
+func isValidPassword(password string) bool {
+	return len(password) >= 6
 }

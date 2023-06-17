@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (db *DB) AddUser(email string) (User, error) {
+func (db *DB) AddUser(email string, password string) (User, error) {
 	DBStruct, err := db.loadDB()
 	if err != nil {
 		return User{}, err
@@ -19,8 +19,9 @@ func (db *DB) AddUser(email string) (User, error) {
 
 	id := len(DBStruct.Users) + 1
 	newUser := User{
-		Id:    id,
-		Email: email,
+		Id:           id,
+		Email:        email,
+		PasswordHash: password,
 	}
 	DBStruct.Users[id] = newUser
 
