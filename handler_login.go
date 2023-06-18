@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/ivcp/chirpy/internal/auth"
 )
 
 func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
@@ -23,12 +23,12 @@ func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters")
 		return
 	}
-	user, err := cfg.database.Login(params.Email, params.Password)
+	user, err := cfg.database.GetUserByEmail(params.Email)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(params.Password))
+	err = auth.CheckPasswordHash(params.Password, user.PasswordHash)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Incorrect password")
 		return

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/mail"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/ivcp/chirpy/internal/auth"
 )
 
 func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
@@ -43,9 +43,9 @@ func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 
 	// hash password
 
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(params.Password), 10)
+	hashedPass, err := auth.HashPassword(params.Password)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		respondWithError(w, http.StatusInternalServerError, "Could not hash password")
 		return
 	}
 

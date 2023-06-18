@@ -5,12 +5,11 @@ import (
 	"fmt"
 )
 
-func (db *DB) Login(email string, password string) (User, error) {
+func (db *DB) GetUserByEmail(email string) (User, error) {
 	DBStruct, err := db.loadDB()
 	if err != nil {
 		return User{}, err
 	}
-
 	user, err := userInDb(DBStruct.Users, email)
 	if err != nil {
 		return User{}, err
