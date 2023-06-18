@@ -8,14 +8,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ivcp/chirpy/internal/db"
+	"github.com/joho/godotenv"
 )
 
 type appConfig struct {
 	fileserverHits int
 	database       *db.DB
+	jwtSecret      string
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	jwtSecret := os.Getenv("JWT_SECRET")
+
 	debug()
 	const filepathRoot = "."
 	const port = "8080"
@@ -25,7 +33,8 @@ func main() {
 		log.Fatal(err)
 	}
 	appCfg := &appConfig{
-		database: database,
+		database:  database,
+		jwtSecret: jwtSecret,
 	}
 
 	r := chi.NewRouter()
