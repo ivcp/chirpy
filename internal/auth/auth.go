@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -43,4 +44,35 @@ func CreateJwt(id int, secret string, expiresIn int) (string, error) {
 		return "", err
 	}
 	return ss, nil
+}
+
+func ValidateJwt(token string, secret string) (string, error) {
+	type myCustomClaims struct {
+		jwt.RegisteredClaims
+	}
+	jwtToken, err := jwt.ParseWithClaims(token, &myCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if !jwtToken.Valid {
+		return "", errors.New("Invalid token")
+	}
+
+	claims, ok := jwtToken.Claims.(*myCustomClaims)
+	if !ok {
+		return "", errors.New("Something went wrong")
+	}
+
+	if claims.ExpiresAt.Unix() < time.Now().Unix() {
+		return "", errors.New("Token expired")
+	}
+
+	id, err := jwtToken.Claims.GetSubject()
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }

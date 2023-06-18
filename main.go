@@ -51,6 +51,7 @@ func main() {
 	apiRouter.Post("/chirps", appCfg.handlerAddChirp)
 
 	apiRouter.Post("/users", appCfg.handlerAddUser)
+	apiRouter.Put("/users", appCfg.handlerUpdateUser)
 	apiRouter.Post("/login", appCfg.handlerLogin)
 
 	r.Mount("/api", apiRouter)
