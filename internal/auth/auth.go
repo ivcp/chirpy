@@ -47,7 +47,7 @@ func CreateJwt(id int, secret string, tokenType string) (string, error) {
 	return ss, nil
 }
 
-func ValidateJwt(token string, secret string) (string, error) {
+func ValidateJwt(token string, secret string, tokenType string) (string, error) {
 	type myCustomClaims struct {
 		jwt.RegisteredClaims
 	}
@@ -71,8 +71,8 @@ func ValidateJwt(token string, secret string) (string, error) {
 		return "", errors.New("Token expired")
 	}
 
-	if claims.Issuer == "chirpy-refresh" {
-		return "", errors.New("Refresh token rejected")
+	if claims.Issuer != fmt.Sprintf("chirpy-%s", tokenType) {
+		return "", errors.New("Wrong token type")
 	}
 
 	id, err := jwtToken.Claims.GetSubject()

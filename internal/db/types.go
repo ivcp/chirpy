@@ -8,8 +8,9 @@ type DB struct {
 }
 
 type DBStructure struct {
-	Chirps map[int]Chirp `json:"chirps"`
-	Users  map[int]User  `json:"users"`
+	Chirps        map[int]Chirp           `json:"chirps"`
+	Users         map[int]User            `json:"users"`
+	RevokedTokens map[string]RevokedToken `json:"revoked_tokens"`
 }
 
 type Chirp struct {
@@ -20,4 +21,8 @@ type User struct {
 	Id           int    `json:"id"`
 	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
+}
+type RevokedToken struct {
+	Time  string `json:"time"`
+	Token string `json:"token"`
 }

@@ -44,7 +44,7 @@ func (cfg *appConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	idStr, err := auth.ValidateJwt(token, cfg.jwtSecret)
+	idStr, err := auth.ValidateJwt(token, cfg.jwtSecret, "access")
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, err.Error())
 		return

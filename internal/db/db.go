@@ -30,8 +30,9 @@ func NewDb(path string) (*DB, error) {
 
 func (db *DB) ensureDB() error {
 	emptyDb := DBStructure{
-		Chirps: make(map[int]Chirp),
-		Users:  make(map[int]User),
+		Chirps:        make(map[int]Chirp),
+		Users:         make(map[int]User),
+		RevokedTokens: make(map[string]RevokedToken),
 	}
 	err := db.writeDB(emptyDb)
 	if err != nil {
