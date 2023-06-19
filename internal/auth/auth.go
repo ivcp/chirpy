@@ -25,18 +25,19 @@ func CheckPasswordHash(password string, hashedPassword string) error {
 	return nil
 }
 
-func CreateJwt(id int, secret string, expiresIn int) (string, error) {
-	exp := 24 * time.Hour
-	if expiresIn > 0 {
-		exp = time.Duration(expiresIn) * time.Second
+func CreateJwt(id int, secret string, tokenType string) (string, error) {
+	exp := time.Hour
+	if tokenType == "refresh" {
+		exp = 60 * (24 * time.Hour)
 	}
 
 	claims := &jwt.RegisteredClaims{
-		Issuer:    "chirpy",
+		Issuer:    fmt.Sprintf("chirpy-%s", tokenType),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(exp)),
 		Subject:   fmt.Sprintf("%v", id),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	ss, err := token.SignedString([]byte(secret))

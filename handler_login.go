@@ -11,12 +11,12 @@ func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
 	type parameters struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		Expires  int    `json:"expires_in_seconds"`
 	}
 	type response struct {
-		Id    int    `json:"id"`
-		Email string `json:"email"`
-		Token string `json:"token"`
+		Id           int    `json:"id"`
+		Email        string `json:"email"`
+		Token        string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
 	}
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
@@ -42,14 +42,20 @@ func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	token, err := auth.CreateJwt(user.Id, cfg.jwtSecret, params.Expires)
+	accessToken, err := auth.CreateJwt(user.Id, cfg.jwtSecret, "access")
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	refreshToken, err := auth.CreateJwt(user.Id, cfg.jwtSecret, "refresh")
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	respondWithJSON(w, http.StatusOK, response{
-		Id:    user.Id,
-		Email: user.Email,
-		Token: token,
+		Id:           user.Id,
+		Email:        user.Email,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
 	})
 }
