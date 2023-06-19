@@ -71,6 +71,10 @@ func ValidateJwt(token string, secret string) (string, error) {
 		return "", errors.New("Token expired")
 	}
 
+	if claims.Issuer == "chirpy-refresh" {
+		return "", errors.New("Refresh token rejected")
+	}
+
 	id, err := jwtToken.Claims.GetSubject()
 	if err != nil {
 		return "", err
