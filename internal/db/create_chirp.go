@@ -1,14 +1,15 @@
 package db
 
-func (db *DB) CreateChirp(body string) (Chirp, error) {
+func (db *DB) CreateChirp(body string, authorId int) (Chirp, error) {
 	DBStruct, err := db.loadDB()
 	if err != nil {
 		return Chirp{}, err
 	}
 	id := len(DBStruct.Chirps) + 1
 	newChirp := Chirp{
-		Id:   id,
-		Body: body,
+		Id:       id,
+		Body:     body,
+		AuthorId: authorId,
 	}
 	DBStruct.Chirps[id] = newChirp
 
