@@ -15,6 +15,7 @@ type appConfig struct {
 	fileserverHits int
 	database       *db.DB
 	jwtSecret      string
+	polkaKey       string
 }
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	jwtSecret := os.Getenv("JWT_SECRET")
+	polkaKey := os.Getenv("POLKA_KEY")
 
 	debug()
 	const filepathRoot = "."
@@ -35,6 +37,7 @@ func main() {
 	appCfg := &appConfig{
 		database:  database,
 		jwtSecret: jwtSecret,
+		polkaKey:  polkaKey,
 	}
 
 	r := chi.NewRouter()
