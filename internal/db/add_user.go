@@ -22,6 +22,7 @@ func (db *DB) AddUser(email string, password string) (User, error) {
 		Id:           id,
 		Email:        email,
 		PasswordHash: password,
+		IsChirpyRed:  false,
 	}
 	DBStruct.Users[id] = newUser
 

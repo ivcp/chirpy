@@ -15,8 +15,9 @@ func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 		Password string `json:"password"`
 	}
 	type response struct {
-		Id    int    `json:"id"`
-		Email string `json:"email"`
+		Id          int    `json:"id"`
+		Email       string `json:"email"`
+		IsChirpyRed bool   `json:"is_chirpy_red"`
 	}
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
@@ -53,8 +54,9 @@ func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	respondWithJSON(w, http.StatusCreated, response{
-		Id:    newUser.Id,
-		Email: newUser.Email,
+		Id:          newUser.Id,
+		Email:       newUser.Email,
+		IsChirpyRed: newUser.IsChirpyRed,
 	})
 }
 

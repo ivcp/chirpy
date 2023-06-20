@@ -17,6 +17,7 @@ func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
 		Email        string `json:"email"`
 		Token        string `json:"token"`
 		RefreshToken string `json:"refresh_token"`
+		IsChirpyRed  bool   `json:"is_chirpy_red"`
 	}
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
@@ -57,5 +58,6 @@ func (cfg *appConfig) handlerLogin(w http.ResponseWriter, req *http.Request) {
 		Email:        user.Email,
 		Token:        accessToken,
 		RefreshToken: refreshToken,
+		IsChirpyRed:  user.IsChirpyRed,
 	})
 }

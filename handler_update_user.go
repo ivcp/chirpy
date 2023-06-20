@@ -15,8 +15,9 @@ func (cfg *appConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 	}
 
 	type response struct {
-		Id    int    `json:"id"`
-		Email string `json:"email"`
+		Id          int    `json:"id"`
+		Email       string `json:"email"`
+		IsChirpyRed bool   `json:"is_chirpy_red"`
 	}
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
@@ -60,7 +61,8 @@ func (cfg *appConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 		return
 	}
 	respondWithJSON(w, http.StatusOK, response{
-		Id:    user.Id,
-		Email: user.Email,
+		Id:          user.Id,
+		Email:       user.Email,
+		IsChirpyRed: user.IsChirpyRed,
 	})
 }
