@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/ivcp/chirpy/internal/auth"
 )
 
 func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) {
@@ -19,6 +22,25 @@ func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	authHeader := req.Header.Get("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		respondWithError(w, http.StatusUnauthorized, "Missing token")
+		return
+	}
+	token := authHeader[7:]
+
+	idStr, err := auth.ValidateJwt(token, cfg.jwtSecret, "access")
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	authorId, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	const maxChirpLength = 140
 	if len([]rune(params.Body)) > maxChirpLength {
 
@@ -30,7 +52,7 @@ func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) 
 
 	// add to db
 
-	newChirp, err := cfg.database.CreateChirp(cleanedBody)
+	newChirp, err := cfg.database.CreateChirp(cleanedBody, authorId)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed so save chirp to DB")
 		return
