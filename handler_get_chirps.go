@@ -12,7 +12,7 @@ func (cfg *appConfig) handlerGetChirps(w http.ResponseWriter, req *http.Request)
 	if authorId != "" {
 		id, err := strconv.Atoi(authorId)
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
+			respondWithError(w, http.StatusInternalServerError, "Invalid author ID")
 			return
 		}
 		chirps, err := cfg.database.GetChirpsByAuthor(id)
