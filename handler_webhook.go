@@ -23,6 +23,7 @@ func (cfg *appConfig) handlerWebhook(w http.ResponseWriter, req *http.Request) {
 
 	if params.Event != "user.upgraded" {
 		respondWithJSON(w, http.StatusOK, struct{}{})
+		return
 	}
 
 	err = cfg.database.AddChirpyRed(params.Data.UserId)
