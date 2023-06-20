@@ -93,3 +93,13 @@ func GetBearerToken(header http.Header) (string, error) {
 
 	return token, nil
 }
+
+func GetApiKey(header http.Header) (string, error) {
+	authHeader := header.Get("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "ApiKey ") {
+		return "", errors.New("Missing api key")
+	}
+	apiKey := authHeader[7:]
+
+	return apiKey, nil
+}
