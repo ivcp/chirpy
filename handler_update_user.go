@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ivcp/chirpy/internal/auth"
 )
@@ -27,13 +26,6 @@ func (cfg *appConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	authHeader := req.Header.Get("Authorization")
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		respondWithError(w, http.StatusUnauthorized, "Missing token")
-		return
-	}
-	token := authHeader[7:]
-
 	if !isValidEmail(params.Email) {
 		respondWithError(w, http.StatusBadRequest, "Invalid email address")
 		return
@@ -41,6 +33,12 @@ func (cfg *appConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 
 	if !isValidPassword((params.Password)) {
 		respondWithError(w, http.StatusBadRequest, "Password must be 6 or more characters long")
+		return
+	}
+
+	token, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 

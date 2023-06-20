@@ -41,15 +41,12 @@ func (cfg *appConfig) handlerAddUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// hash password
-
 	hashedPass, err := auth.HashPassword(params.Password)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Could not hash password")
 		return
 	}
 
-	// add user
 	newUser, err := cfg.database.AddUser(params.Email, string(hashedPass))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to save user: %s", err))

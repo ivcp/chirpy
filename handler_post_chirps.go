@@ -22,12 +22,11 @@ func (cfg *appConfig) handlerAddChirp(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	authHeader := req.Header.Get("Authorization")
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		respondWithError(w, http.StatusUnauthorized, "Missing token")
+	token, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	token := authHeader[7:]
 
 	idStr, err := auth.ValidateJwt(token, cfg.jwtSecret, "access")
 	if err != nil {

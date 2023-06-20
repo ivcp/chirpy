@@ -2,18 +2,18 @@ package main
 
 import (
 	"net/http"
-	"strings"
+
+	"github.com/ivcp/chirpy/internal/auth"
 )
 
 func (cfg *appConfig) handlerRevoke(w http.ResponseWriter, req *http.Request) {
-	authHeader := req.Header.Get("Authorization")
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		respondWithError(w, http.StatusUnauthorized, "Missing token")
+	token, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	token := authHeader[7:]
 
-	err := cfg.database.RevokeToken(token)
+	err = cfg.database.RevokeToken(token)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to revoke token")
 		return
