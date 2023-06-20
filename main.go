@@ -57,9 +57,6 @@ func main() {
 	apiRouter.Post("/refresh", appCfg.handlerRefresh)
 	apiRouter.Post("/revoke", appCfg.handlerRevoke)
 
-	// POST api/refresh
-	// POST api/revoke
-
 	r.Mount("/api", apiRouter)
 
 	adminRouter := chi.NewRouter()
