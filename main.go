@@ -49,6 +49,7 @@ func main() {
 	apiRouter.Get("/chirps", appCfg.handlerGetChirps)
 	apiRouter.Get("/chirps/{chirpId}", appCfg.handlerGetOneChirp)
 	apiRouter.Post("/chirps", appCfg.handlerAddChirp)
+	apiRouter.Delete("/chirps/{chirpId}", appCfg.handlerDeleteChirp)
 
 	apiRouter.Post("/users", appCfg.handlerAddUser)
 	apiRouter.Put("/users", appCfg.handlerUpdateUser)
